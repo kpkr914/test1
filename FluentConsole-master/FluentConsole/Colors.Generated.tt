@@ -1,0 +1,61 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+
+<# var colors = Enum.GetNames(typeof(ConsoleColor)); #>
+
+using System;
+using JetBrains.Annotations;
+
+partial class FluentConsole {
+    partial interface IMainSyntax {
+<# 
+       foreach (var color in colors) {
+#>
+         /// <summary>
+         /// Sets foreground color to <see cref="ConsoleColor.<#= color #>" /> for future calls to <see cref="ITextSyntax"/>.Text and <see cref="ITextSyntax"/>.Line.
+         /// Only applies to calls made on instance it returns.
+         /// </summary>
+         [NotNull]
+         IAfterColorSyntax <#= color #> { get; }
+
+<#     
+       } 
+#>
+    }
+
+<#
+    foreach (var color in colors) { 
+#>
+    /// <summary>
+    /// Sets foreground color to <see cref="ConsoleColor.<#= color #>" /> for future calls to <see cref="ITextSyntax"/>.Text and <see cref="ITextSyntax"/>.Line.
+    /// Only applies to calls made on instance it returns.
+    /// </summary>
+    [NotNull]
+    public static IAfterColorSyntax <#= color #> {
+        get { return instance.<#= color #>; }
+    }
+
+<#
+    }
+#>
+}
+
+namespace FluentConsoleInternal {
+    partial class MainSyntax {
+<#
+    foreach (var color in colors) { 
+#>
+        public FluentConsole.IAfterColorSyntax <#= color #> {
+            get { return Color(ConsoleColor.<#= color #>); }
+        }
+
+<#
+    }
+#>
+    }
+}
